@@ -116,3 +116,31 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 
 }
 
+//Google 画像検索
+func ParseGoogleImageSearch(w http.ResponseWriter, r io.Reader) {
+	doc, err := html.Parse(r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			for _, a := range n.Attr {
+				if a.Key == "href" {
+					str := a.Val
+					if strings.Contains(str, "imgurl") {
+						strs := strings.Split(str, "&")
+						imageurl := strings.Split(strs[0], "=")
+						img := imageurl[1]
+						fmt.Fprintf(w, "<html><body><ul><li><a href=%v><img src=%v></a></li></ul></body></html>", img, img)
+					}
+					break
+				}
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(doc)
+}
