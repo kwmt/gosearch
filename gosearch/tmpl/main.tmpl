@@ -5,6 +5,10 @@
 	<title></title>
 </head>
 <body>
-<a href="{{.Url}}">{{.Text}}</a>
+<ul>
+{{range .}}
+<li><a href="{{.Url}}">{{.Text}}</a></li>
+{{end}}
+</ul>
 </body>
 </html>

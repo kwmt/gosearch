@@ -3,14 +3,14 @@ package main
 import (
 	"appengine"
 	"appengine/urlfetch"
-	"fmt"
+	// "fmt"
 	//"io/ioutil"
 	"code.google.com/p/go.net/html"
+	"html/template"
 	"io"
-	//	"log"
+	"log"
 	"net/http"
 	"strings"
-	"html/template"
 )
 
 type Result struct {
@@ -40,16 +40,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-           w.Header().Add("Content-type","text/html charset=utf-8")
+	w.Header().Add("Content-type", "text/html charset=utf-8")
 	results := ParseGoogleSearch(w, resp.Body)
 
-	t := template.New("main.tmpl")
-	t = template.mainust(t.ParseGlob("tmpl/*.tmpl"))
-           t.Execute(w,results)
-
+	t := template.Must(template.ParseFiles("gosearch/tmpl/main.tmpl"))
+	err = t.Execute(w, results)
+	if err != nil {
+		log.Fatalf("template execution: %s", err)
+	}
 	// fmt.Fprintf(w, "HTTP GET returned status %v", resp)
 }
 
+//Google Web検索
 func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 	var (
 		classrflag bool = false
@@ -110,4 +112,7 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 		}
 	}
 
+	return results
+
 }
+
