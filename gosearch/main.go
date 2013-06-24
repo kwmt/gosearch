@@ -10,7 +10,13 @@ import (
 	//	"log"
 	"net/http"
 	"strings"
+	"html/template"
 )
+
+type Result struct {
+	Text string
+	Url  string
+}
 
 func init() {
 	http.HandleFunc("/", handler)
@@ -34,21 +40,22 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("Content-Type", "text/html charset=UTF-8")
-	fmt.Fprintf(w, "<!DOCTYPE HTML><html lang=\"ja\"><head><meta charset=\"UTF-8\"></head><body>")
+           w.Header().Add("Content-type","text/html charset=utf-8")
+	results := ParseGoogleSearch(w, resp.Body)
 
-	ParseGoogleSearch(w, resp.Body)
-	fmt.Fprintln(w, "</body></html>")
+	t := template.New("main.tmpl")
+	t = template.mainust(t.ParseGlob("tmpl/*.tmpl"))
+           t.Execute(w,results)
 
 	// fmt.Fprintf(w, "HTTP GET returned status %v", resp)
 }
 
-func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) {
+func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 	var (
 		classrflag bool = false
 		key, val   []byte
-		url        string
-		text       string
+		result     Result
+		results    []Result
 	)
 
 	t := html.NewTokenizer(r)
@@ -58,7 +65,8 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) {
 
 		switch tokenType {
 		case html.ErrorToken:
-			return
+			//fmt.Fprintln(w, "return")
+			return results
 		case html.StartTagToken, html.EndTagToken: //<a href="http://~">,</a>, <h3 class="r">
 			tagname, _ := t.TagName() // a
 			if string(tagname) == "h3" {
@@ -76,15 +84,19 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) {
 				if string(tagname) == "a" {
 					if string(key) == "href" {
 						aval := strings.Split(string(val), "&")
-						url = aval[0][7:]
+						result.Url = aval[0][7:]
 					}
 				}
 
 				if tokenType == html.EndTagToken {
 					if string(tagname) == "a" {
-						fmt.Fprintf(w, "<a href=\"%s\">%v</a>", url, text)
-						fmt.Fprintln(w, "<br>")
-						text = ""
+						tmp := Result{result.Text, result.Url}
+						if len(results) != 0 {
+							results = append(results, tmp)
+						} else {
+							results = []Result{tmp}
+						}
+						result.Text = ""
 						classrflag = false
 					}
 				}
@@ -92,7 +104,7 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) {
 
 		case html.TextToken:
 			if classrflag {
-				text += string(t.Text())
+				result.Text += string(t.Text())
 			}
 		case html.SelfClosingTagToken:
 		}
