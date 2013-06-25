@@ -121,7 +121,7 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 }
 
 //Google 画像検索(未使用)
-//  http://godoc.org/code.google.com/p/go.net/html 
+//  http://godoc.org/code.google.com/p/go.net/html
 // にのっているサンプルにParse部分を追加
 func ParseGoogleImageSearch(w http.ResponseWriter, r io.Reader) {
 	doc, err := html.Parse(r)
