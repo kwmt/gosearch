@@ -1,13 +1,12 @@
 <!DOCTYPE HTML>
 <html lang="ja">
 <head>
-	<meta charset="UTF-8">
 	<title></title>
 </head>
 <body>
 <ul>
 {{range .}}
-<li><a href="{{.Url}}">{{.Text}}</a></li>
+<li><a href="{{.Url}}">{{printf "%s" .Text}}</a></li>
 {{end}}
 </ul>
 </body>

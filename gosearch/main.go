@@ -3,7 +3,7 @@ package main
 import (
 	"appengine"
 	"appengine/urlfetch"
-	// "fmt"
+	"fmt"
 	//"io/ioutil"
 	"code.google.com/p/go.net/html"
 	"html/template"
@@ -14,7 +14,7 @@ import (
 )
 
 type Result struct {
-	Text string
+	Text []byte
 	Url  string
 }
 
@@ -98,7 +98,7 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 						} else {
 							results = []Result{tmp}
 						}
-						result.Text = ""
+						result.Text = make([]byte, 0)
 						classrflag = false
 					}
 				}
@@ -106,7 +106,8 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 
 		case html.TextToken:
 			if classrflag {
-				result.Text += string(t.Text())
+				//result.Text += string(t.Text())
+				result.Text = append(result.Text, t.Text()...)
 			}
 		case html.SelfClosingTagToken:
 		}
