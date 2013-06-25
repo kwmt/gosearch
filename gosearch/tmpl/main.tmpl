@@ -1,10 +1,17 @@
 <!DOCTYPE HTML>
 <html lang="ja">
 <head>
+	<meta charset="utf-8">
 	<title></title>
 </head>
 <body>
 <ul>
+
+<form action="/search" method="POST">
+<div>検索したい文字を入力して下さい:<input type="text" name="search_string" />
+<input type="submit" value="検索"></div>
+</form>
+
 {{range .}}
 <li><a href="{{.Url}}">{{printf "%s" .Text}}</a></li>
 {{end}}

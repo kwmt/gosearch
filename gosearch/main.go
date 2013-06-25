@@ -19,7 +19,8 @@ type Result struct {
 }
 
 func init() {
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", index)
+	http.HandleFunc("/search", search)
 }
 
 // func handler(w http.ResponseWriter, r *http.Request){
@@ -28,12 +29,21 @@ func init() {
 
 // var SEARCH_URL = "http://images.google.co.jp/images?q=C%23&hl=ja"
 // var SEARCH_URL = "http://images.google.co.jp/images?q=golang&hl=ja"
-var SEARCH_URL = "http://www.google.co.jp/search?q=golang&hl=ja"
+var SEARCH_URL = "http://www.google.co.jp/search?hl=ja&q="
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("gosearch/tmpl/main.tmpl"))
+	err := t.Execute(w, nil)
+	if err != nil {
+		log.Fatalf("template execution: %s", err)
+	}
+}
+func search(w http.ResponseWriter, r *http.Request) {
+	search_string := r.FormValue("search_string")
+
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
-	resp, err := client.Get(SEARCH_URL)
+	resp, err := client.Get(SEARCH_URL + search_string)
 	defer resp.Body.Close()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
