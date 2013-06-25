@@ -6,6 +6,7 @@ import (
 	"fmt"
 	//"io/ioutil"
 	"code.google.com/p/go.net/html"
+	"code.google.com/p/mahonia"
 	"html/template"
 	"io"
 	"log"
@@ -14,7 +15,7 @@ import (
 )
 
 type Result struct {
-	Text []byte
+	Text string
 	Url  string
 }
 
@@ -44,7 +45,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("Content-type", "text/html charset=utf-8")
+	w.Header().Add("Content-type", "text/html; charset=utf-8")
 	results := ParseGoogleSearch(w, resp.Body)
 
 	t := template.Must(template.ParseFiles("gosearch/tmpl/main.tmpl"))
@@ -95,13 +96,14 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 
 				if tokenType == html.EndTagToken {
 					if string(tagname) == "a" {
-						tmp := Result{result.Text, result.Url}
+						rt := mahonia.NewDecoder("Shift_JIS").ConvertString(result.Text)
+						tmp := Result{rt, result.Url}
 						if len(results) != 0 {
 							results = append(results, tmp)
 						} else {
 							results = []Result{tmp}
 						}
-						result.Text = nil
+						result.Text = ""
 						classrflag = false
 					}
 				}
@@ -109,8 +111,8 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 
 		case html.TextToken:
 			if classrflag {
-				//result.Text += string(t.Text())
-				result.Text = append(result.Text, t.Text()...)
+				result.Text += string(t.Text())
+				//result.Text = append(result.Text, t.Text()...)
 			}
 		case html.SelfClosingTagToken:
 		}
