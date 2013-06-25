@@ -23,12 +23,6 @@ func init() {
 	http.HandleFunc("/search", search)
 }
 
-// func handler(w http.ResponseWriter, r *http.Request){
-// 	fmt.Fprint(w, "Hello, world!")
-// }
-
-// var SEARCH_URL = "http://images.google.co.jp/images?q=C%23&hl=ja"
-// var SEARCH_URL = "http://images.google.co.jp/images?q=golang&hl=ja"
 var SEARCH_URL = "http://www.google.co.jp/search?hl=ja&q="
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +52,6 @@ func search(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalf("template execution: %s", err)
 	}
-	// fmt.Fprintf(w, "HTTP GET returned status %v", resp)
 }
 
 //Google Web検索
@@ -127,7 +120,9 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 
 }
 
-//Google 画像検索
+//Google 画像検索(未使用)
+//  http://godoc.org/code.google.com/p/go.net/html 
+// にのっているサンプルにParse部分を追加
 func ParseGoogleImageSearch(w http.ResponseWriter, r io.Reader) {
 	doc, err := html.Parse(r)
 	if err != nil {
