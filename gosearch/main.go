@@ -108,7 +108,7 @@ func ParseGoogleSearch(w http.ResponseWriter, r io.Reader) []Result {
 						} else {
 							results = []Result{tmp}
 						}
-						result.Text = make([]byte, 0)
+						result.Text = nil
 						classrflag = false
 					}
 				}
